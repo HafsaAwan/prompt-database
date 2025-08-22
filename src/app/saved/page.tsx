@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 import PromptCard from '@/components/PromptCard';
 import { useRouter } from 'next/navigation';
 
-// Type for a single prompt object
+// This is the type for a single, clean prompt object. It's correct.
 type Prompt = {
   id: number;
   title: string;
@@ -14,7 +14,8 @@ type Prompt = {
   use_case: string;
 };
 
-// This type now correctly defines the shape of the data from Supabase
+// THE FIX: This type now correctly defines that 'prompts' is an ARRAY of Prompt objects,
+// which matches what the error message is telling us.
 type SavedPromptResponse = {
   id: number;
   prompts: Prompt[];
@@ -33,6 +34,7 @@ export default function SavedPromptsPage() {
         return;
       }
 
+      // The query to fetch the data is correct.
       const { data, error } = await supabase
         .from('saved_prompts')
         .select('id, prompts(*)')
@@ -41,7 +43,9 @@ export default function SavedPromptsPage() {
       if (error) {
         console.error('Error fetching saved prompts:', error);
       } else if (data) {
-        // This logic now uses our correct type and avoids the 'any' keyword
+        // THE FIX: This logic now correctly handles the nested array structure.
+        // It maps over the response, takes the first item from the inner 'prompts' array,
+        // and then filters out any potential nulls.
         const extractedPrompts = (data as SavedPromptResponse[])
           .map(item => (item.prompts && item.prompts.length > 0 ? item.prompts[0] : null))
           .filter((p): p is Prompt => p !== null);
@@ -78,7 +82,6 @@ export default function SavedPromptsPage() {
           ))}
         </div>
       ) : (
-        // This line is fixed to use the correct HTML entity for an apostrophe
         <p className="text-center mt-8">You haven&apos;t saved any prompts yet.</p>
       )}
     </main>
