@@ -1,0 +1,91 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
+import PromptCard from '@/components/PromptCard';
+import { useRouter } from 'next/navigation';
+
+// This is the type for a single, clean prompt object. It's correct.
+type Prompt = {
+  id: number;
+  title: string;
+  prompt_text: string;
+  category: string;
+  use_case: string;
+};
+
+export default function SavedPromptsPage() {
+  const [prompts, setPrompts] = useState<Prompt[]>([]);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchSavedPrompts = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('saved_prompts')
+        .select('id, prompts(*)')
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Error fetching saved prompts:', error);
+      } else if (data) {
+        // THE FIX: This logic is now much more robust.
+        // It tells TypeScript to trust us, then it checks the data structure.
+        const extractedPrompts = (data as any[])
+          .map(item => {
+            // Check if item.prompts exists.
+            if (!item.prompts) return null;
+
+            // Check if it's an array (as the error sometimes suggests).
+            if (Array.isArray(item.prompts)) {
+              return item.prompts.length > 0 ? item.prompts[0] : null;
+            }
+            
+            // Otherwise, treat it as a single object (as our console log showed).
+            return item.prompts;
+          })
+          .filter((p): p is Prompt => p !== null); // This removes any nulls.
+
+        setPrompts(extractedPrompts);
+      }
+      setLoading(false);
+    };
+
+    fetchSavedPrompts();
+  }, [router]);
+
+  if (loading) {
+    return <p className="text-center mt-8">Loading your saved prompts...</p>;
+  }
+
+  return (
+    <main className="container mx-auto p-8">
+      <h1 className="text-4xl font-bold mb-8 text-center">
+        My Saved Prompts
+      </h1>
+      {prompts.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {prompts.map((prompt) => (
+            <PromptCard
+              key={prompt.id}
+              id={prompt.id}
+              title={prompt.title}
+              prompt_text={prompt.prompt_text}
+              category={prompt.category}
+              use_case={prompt.use_case}
+              variant="saved"
+            />
+          ))}
+        </div>
+      ) : (
+        <p className="text-center mt-8">You haven't saved any prompts yet.</p>
+      )}
+    </main>
+  );
+}
