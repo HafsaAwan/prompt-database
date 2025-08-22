@@ -14,11 +14,11 @@ type Prompt = {
   use_case: string;
 };
 
-// THE FIX: This type now correctly defines that 'prompts' is an ARRAY of Prompt objects.
-// This will satisfy the TypeScript compiler based on the error message.
+// THE FIX: This type now correctly defines that 'prompts' is a single OBJECT,
+// which matches the real data we saw in your screenshot.
 type SavedPromptResponse = {
   id: number;
-  prompts: Prompt[];
+  prompts: Prompt | null;
 };
 
 export default function SavedPromptsPage() {
@@ -34,7 +34,7 @@ export default function SavedPromptsPage() {
         return;
       }
 
-      // The query to fetch the data is correct.
+      // This query is correct.
       const { data, error } = await supabase
         .from('saved_prompts')
         .select('id, prompts(*)')
@@ -43,11 +43,10 @@ export default function SavedPromptsPage() {
       if (error) {
         console.error('Error fetching saved prompts:', error);
       } else if (data) {
-        // THE FIX: This logic now correctly handles the nested array structure.
-        // It maps over the response, takes the first item from the inner 'prompts' array,
-        // and then filters out any potential nulls.
+        // THE FIX: This logic is now much simpler. It just extracts the 'prompts' object
+        // from each item and filters out any potential nulls.
         const extractedPrompts = (data as SavedPromptResponse[])
-          .map(item => (item.prompts && item.prompts.length > 0 ? item.prompts[0] : null))
+          .map(item => item.prompts)
           .filter((p): p is Prompt => p !== null);
         
         setPrompts(extractedPrompts);
@@ -68,7 +67,7 @@ export default function SavedPromptsPage() {
         My Saved Prompts
       </h1>
       {prompts.length > 0 ? (
-        <div className="grid grid-cols-1 md-grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {prompts.map((prompt) => (
             <PromptCard
               key={prompt.id}
