@@ -15,7 +15,7 @@ type Prompt = {
 };
 
 // THE FIX: This type now correctly defines that 'prompts' is an ARRAY of Prompt objects,
-// which matches what the error message is telling us.
+// which matches what the TypeScript error is telling us.
 type SavedPromptResponse = {
   id: number;
   prompts: Prompt[];
@@ -24,25 +24,29 @@ type SavedPromptResponse = {
 export default function SavedPromptsPage() {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(true);
+  const [debugMessage, setDebugMessage] = useState('1. Component loaded. Starting fetch...');
   const router = useRouter();
 
   useEffect(() => {
     const fetchSavedPrompts = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
+        setDebugMessage('2. No user found. Redirecting...');
         router.push('/login');
         return;
       }
+      setDebugMessage(`2. User found: ${user.email}`);
 
-      // The query to fetch the data is correct.
       const { data, error } = await supabase
         .from('saved_prompts')
         .select('id, prompts(*)')
         .eq('user_id', user.id);
 
       if (error) {
-        console.error('Error fetching saved prompts:', error);
+        setDebugMessage(`3. Error from Supabase: ${error.message}`);
       } else if (data) {
+        setDebugMessage(`3. Data received from Supabase: ${JSON.stringify(data, null, 2)}`);
+        
         // THE FIX: This logic now correctly handles the nested array structure.
         // It maps over the response, takes the first item from the inner 'prompts' array,
         // and then filters out any potential nulls.
@@ -51,6 +55,7 @@ export default function SavedPromptsPage() {
           .filter((p): p is Prompt => p !== null);
         
         setPrompts(extractedPrompts);
+        setDebugMessage(`4. Processed ${extractedPrompts.length} prompts successfully.`);
       }
       setLoading(false);
     };
@@ -58,16 +63,15 @@ export default function SavedPromptsPage() {
     fetchSavedPrompts();
   }, [router]);
 
-  if (loading) {
-    return <p className="text-center mt-8">Loading your saved prompts...</p>;
-  }
-
   return (
     <main className="container mx-auto p-8">
       <h1 className="text-4xl font-bold mb-8 text-center">
         My Saved Prompts
       </h1>
-      {prompts.length > 0 ? (
+
+      {loading && <p className="text-center">Loading your saved prompts...</p>}
+      
+      {!loading && prompts.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {prompts.map((prompt) => (
             <PromptCard
@@ -81,9 +85,19 @@ export default function SavedPromptsPage() {
             />
           ))}
         </div>
-      ) : (
+      )}
+
+      {!loading && prompts.length === 0 && (
         <p className="text-center mt-8">You haven&apos;t saved any prompts yet.</p>
       )}
+
+      {/* Debug Box */}
+      <div className="mt-12 p-4 bg-zinc-800 border border-zinc-700 rounded-lg">
+        <h3 className="text-lg font-semibold text-zinc-400">Debug Information:</h3>
+        <pre className="text-sm text-zinc-500 whitespace-pre-wrap">
+          {debugMessage}
+        </pre>
+      </div>
     </main>
   );
 }
