@@ -5,13 +5,19 @@ import { supabase } from '@/lib/supabase';
 import PromptCard from '@/components/PromptCard';
 import { useRouter } from 'next/navigation';
 
-// This is the type for a single, clean prompt object. It's correct.
+// Type for a single prompt object
 type Prompt = {
   id: number;
   title: string;
   prompt_text: string;
   category: string;
   use_case: string;
+};
+
+// This type now correctly defines the shape of the data from Supabase
+type SavedPromptResponse = {
+  id: number;
+  prompts: Prompt[];
 };
 
 export default function SavedPromptsPage() {
@@ -35,23 +41,11 @@ export default function SavedPromptsPage() {
       if (error) {
         console.error('Error fetching saved prompts:', error);
       } else if (data) {
-        // THE FIX: This logic is now much more robust.
-        // It tells TypeScript to trust us, then it checks the data structure.
-        const extractedPrompts = (data as any[])
-          .map(item => {
-            // Check if item.prompts exists.
-            if (!item.prompts) return null;
-
-            // Check if it's an array (as the error sometimes suggests).
-            if (Array.isArray(item.prompts)) {
-              return item.prompts.length > 0 ? item.prompts[0] : null;
-            }
-            
-            // Otherwise, treat it as a single object (as our console log showed).
-            return item.prompts;
-          })
-          .filter((p): p is Prompt => p !== null); // This removes any nulls.
-
+        // This logic now uses our correct type and avoids the 'any' keyword
+        const extractedPrompts = (data as SavedPromptResponse[])
+          .map(item => (item.prompts && item.prompts.length > 0 ? item.prompts[0] : null))
+          .filter((p): p is Prompt => p !== null);
+        
         setPrompts(extractedPrompts);
       }
       setLoading(false);
@@ -84,7 +78,8 @@ export default function SavedPromptsPage() {
           ))}
         </div>
       ) : (
-        <p className="text-center mt-8">You haven't saved any prompts yet.</p>
+        // This line is fixed to use the correct HTML entity for an apostrophe
+        <p className="text-center mt-8">You haven&apos;t saved any prompts yet.</p>
       )}
     </main>
   );

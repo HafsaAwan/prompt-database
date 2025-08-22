@@ -2,7 +2,6 @@
 
 import { supabase } from '@/lib/supabase';
 
-// 1. Add 'isSaved' to our type definition. It's a boolean (true or false).
 type PromptCardProps = {
   id: number;
   title: string;
@@ -10,7 +9,7 @@ type PromptCardProps = {
   category: string;
   use_case: string;
   variant: 'home' | 'saved';
-  isSaved?: boolean; // The '?' makes it an optional prop
+  isSaved?: boolean;
 };
 
 export default function PromptCard({ id, title, prompt_text, category, use_case, variant, isSaved }: PromptCardProps) {
@@ -29,7 +28,6 @@ export default function PromptCard({ id, title, prompt_text, category, use_case,
       alert('Error saving prompt: ' + error.message);
     } else {
       alert('Prompt saved successfully!');
-      // We'll make this update the UI without a full reload later
       window.location.reload();
     }
   };
@@ -59,15 +57,17 @@ export default function PromptCard({ id, title, prompt_text, category, use_case,
       <h2 className="text-xl font-bold mb-2 text-white">{title}</h2>
       <p className="text-zinc-400 mb-4 flex-grow">{prompt_text}</p>
       <div className="flex justify-between items-center mt-auto pt-4 border-t border-zinc-700">
-        <span className="bg-zinc-700 text-zinc-300 text-xs font-semibold px-2.5 py-1 rounded">
-          {category}
-        </span>
+        {/* This div now displays both the category and the use_case */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="bg-zinc-700 text-zinc-300 text-xs font-semibold px-2.5 py-1 rounded">
+            {category}
+          </span>
+          <span className="text-sm text-zinc-500">{use_case}</span>
+        </div>
 
-        {/* This is our logic switch */}
+        {/* This logic for the buttons is unchanged */}
         {variant === 'home' ? (
-          // If we are on the homepage...
           isSaved ? (
-            // ...and the prompt is already saved, show a disabled button
             <button 
               disabled
               className="text-sm text-zinc-500 cursor-not-allowed"
@@ -75,7 +75,6 @@ export default function PromptCard({ id, title, prompt_text, category, use_case,
               Saved
             </button>
           ) : (
-            // ...and the prompt is NOT saved, show the active Save button
             <button 
               onClick={handleSave}
               className="text-sm text-blue-400 hover:text-blue-300"
@@ -84,7 +83,6 @@ export default function PromptCard({ id, title, prompt_text, category, use_case,
             </button>
           )
         ) : (
-          // If we are on the 'saved' page, show the Remove button
           <button 
             onClick={handleRemove}
             className="text-sm text-red-400 hover:text-red-300"
