@@ -14,6 +14,13 @@ type Prompt = {
   use_case: string;
 };
 
+// THE FIX: This type now correctly defines that 'prompts' is an ARRAY of Prompt objects.
+// This will satisfy the TypeScript compiler and the Vercel build linter.
+type SavedPromptResponse = {
+  id: number;
+  prompts: Prompt[];
+};
+
 export default function SavedPromptsPage() {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,22 +43,10 @@ export default function SavedPromptsPage() {
       if (error) {
         console.error('Error fetching saved prompts:', error);
       } else if (data) {
-        // THE FIX: This logic is now robust. It tells TypeScript to expect 'any'
-        // and then checks the data's actual shape before processing it.
-        const extractedPrompts = (data as any[])
-          .map(item => {
-            // Check if item.prompts exists.
-            if (!item.prompts) {
-              return null;
-            }
-            // Check if it's an array (for the Vercel build server).
-            if (Array.isArray(item.prompts)) {
-              return item.prompts.length > 0 ? item.prompts[0] : null;
-            }
-            // Otherwise, treat it as a single object (for the local server).
-            return item.prompts;
-          })
-          .filter((p): p is Prompt => p !== null); // This removes any nulls.
+        // THE FIX: This logic now uses our new, specific type instead of 'any'.
+        const extractedPrompts = (data as SavedPromptResponse[])
+          .map(item => (item.prompts && item.prompts.length > 0 ? item.prompts[0] : null))
+          .filter((p): p is Prompt => p !== null);
         
         setPrompts(extractedPrompts);
       }
