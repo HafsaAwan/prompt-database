@@ -14,11 +14,11 @@ type Prompt = {
   use_case: string;
 };
 
-// THE FIX: This type now correctly defines that 'prompts' is an ARRAY of Prompt objects.
-// This will satisfy the TypeScript compiler and the Vercel build linter.
-type SavedPromptResponse = {
+// This is a more flexible type that tells TypeScript the 'prompts' property
+// could be either a single object or an array of objects.
+type SupabaseResponse = {
   id: number;
-  prompts: Prompt[];
+  prompts: Prompt | Prompt[] | null;
 };
 
 export default function SavedPromptsPage() {
@@ -43,10 +43,18 @@ export default function SavedPromptsPage() {
       if (error) {
         console.error('Error fetching saved prompts:', error);
       } else if (data) {
-        // THE FIX: This logic now uses our new, specific type instead of 'any'.
-        const extractedPrompts = (data as SavedPromptResponse[])
-          .map(item => (item.prompts && item.prompts.length > 0 ? item.prompts[0] : null))
-          .filter((p): p is Prompt => p !== null);
+        // THE FIX: This logic is now robust. It handles both cases.
+        const extractedPrompts = (data as SupabaseResponse[])
+          .map(item => {
+            if (!item.prompts) return null;
+            // If it's an array (like on Vercel), take the first item.
+            if (Array.isArray(item.prompts)) {
+              return item.prompts.length > 0 ? item.prompts[0] : null;
+            }
+            // Otherwise, treat it as a single object (like on localhost).
+            return item.prompts;
+          })
+          .filter((p): p is Prompt => p !== null); // This removes any nulls.
         
         setPrompts(extractedPrompts);
       }
