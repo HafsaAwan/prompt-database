@@ -15,7 +15,7 @@ type Prompt = {
 };
 
 // THE FIX: This type now correctly defines that 'prompts' is an ARRAY of Prompt objects,
-// which matches what the TypeScript error is telling us.
+// which will satisfy the TypeScript compiler.
 type SavedPromptResponse = {
   id: number;
   prompts: Prompt[];
@@ -91,7 +91,7 @@ export default function SavedPromptsPage() {
         <p className="text-center mt-8">You haven&apos;t saved any prompts yet.</p>
       )}
 
-      {/* Debug Box */}
+      {/* Debug Box will remain for final confirmation */}
       <div className="mt-12 p-4 bg-zinc-800 border border-zinc-700 rounded-lg">
         <h3 className="text-lg font-semibold text-zinc-400">Debug Information:</h3>
         <pre className="text-sm text-zinc-500 whitespace-pre-wrap">
