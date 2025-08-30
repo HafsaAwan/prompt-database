@@ -1,17 +1,15 @@
-'use client'; // 1. This component needs to run in the browser, not on the server.
-// We need this because it uses browser-only features like useState and event handlers (onClick, onChange, onSubmit) to respond to user actions.
+'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import toast from 'react-hot-toast';
 
 export default function LoginPage() {
-  // 2. State variables to hold the user's input
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const router = useRouter(); // 3. Hook to allow redirection
+  const router = useRouter();
 
-    // This function handles signing up a new user
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     const { data, error } = await supabase.auth.signUp({
@@ -20,43 +18,40 @@ export default function LoginPage() {
     });
 
     if (error) {
-      alert('Error signing up: ' + error.message);
+      toast.error('Error signing up: ' + error.message);
     } else if (data.user) {
-      // Because email confirmation is on, Supabase sends a verification email.
-      // The user is created but can't log in until they verify.
-      alert('Sign up successful! Please check your email to verify your account.');
+      toast.success('Sign up successful! Please check your email to verify.');
     }
   };
 
-
-  // 4. This function will run when the form is submitted
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault(); // Prevent the page from reloading
-
+    e.preventDefault();
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
     if (error) {
-      alert('Error logging in: ' + error.message); 
+      toast.error('Error logging in: ' + error.message);
     } else {
-      router.push('/'); // Redirect to the homepage on successful login
+      router.push('/');
+      router.refresh();
     }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen">
-      <div className="w-full max-w-md p-8 space-y-6 bg-zinc-800 rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold text-center text-white">
-          Sign In or Sign Up
+    // THEME UPDATE: The page now has a vibrant blue background.
+    <div className="flex justify-center items-center py-12 px-4 bg-brand-light-blue">
+      {/* The form container remains white for contrast */}
+      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lg">
+        <h1 className="text-3xl font-bold text-center text-brand-dark-blue">
+          Welcome!
         </h1>
-        {/* We don't need the <form> tag's onSubmit for this approach */}
         <div className="space-y-6">
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-zinc-300"
+              className="block text-sm font-medium text-slate-700"
             >
               Email address
             </label>
@@ -67,13 +62,13 @@ export default function LoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded-md text-white placeholder-zinc-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-md text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue"
             />
           </div>
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-zinc-300"
+              className="block text-sm font-medium text-slate-700"
             >
               Password
             </label>
@@ -84,20 +79,19 @@ export default function LoginPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded-md text-white placeholder-zinc-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-md text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue"
             />
           </div>
-          {/* This div will hold our two buttons */}
-          <div className="flex space-x-4">
+          <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
             <button
               onClick={handleLogin}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-brand-blue hover:bg-brand-medium-blue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-blue transition-colors"
             >
               Sign In
             </button>
             <button
               onClick={handleSignUp}
-              className="w-full flex justify-center py-2 px-4 border border-zinc-600 rounded-md shadow-sm text-sm font-medium text-white bg-zinc-700 hover:bg-zinc-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500"
+              className="w-full flex justify-center py-2 px-4 border border-slate-300 rounded-md shadow-sm text-sm font-medium text-brand-dark-blue bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-blue transition-colors"
             >
               Sign Up
             </button>

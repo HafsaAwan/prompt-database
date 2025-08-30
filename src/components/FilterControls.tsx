@@ -20,8 +20,8 @@ export default function FilterControls({
   categories,
 }: FilterControlsProps) {
   return (
-    <div className="mb-8 p-4 bg-zinc-800 rounded-lg">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="mb-8 p-6 bg-white rounded-xl shadow-lg">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
         {/* Search Input */}
         <div className="md:col-span-2">
           <label htmlFor="search" className="sr-only">
@@ -31,7 +31,7 @@ export default function FilterControls({
             type="text"
             name="search"
             id="search"
-            className="block w-full bg-zinc-700 border-zinc-600 rounded-md py-2 px-4 text-white placeholder-zinc-400 focus:ring-blue-500 focus:border-blue-500"
+            className="block w-full bg-slate-50 border-slate-300 rounded-md py-2 px-4 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition"
             placeholder="Search for prompts..."
             // 2. The input's value is now controlled by the state from the homepage.
             value={searchTerm}
@@ -49,8 +49,7 @@ export default function FilterControls({
           <select
             id="category"
             name="category"
-            className="block w-full bg-zinc-700 border-zinc-600 rounded-md py-2 px-4 text-white focus:ring-blue-500 focus:border-blue-500"
-            // The dropdown's value is also controlled by the homepage's state.
+            className="block w-full bg-slate-50 border-slate-300 rounded-md py-2 px-4 text-slate-900 focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition"
             value={selectedCategory}
             // When the user selects a new category, we update the parent's state.
             onChange={(e) => setSelectedCategory(e.target.value)}

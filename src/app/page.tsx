@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import PromptCard from '@/components/PromptCard';
 import FilterControls from '@/components/FilterControls';
+import toast from 'react-hot-toast';
 
 type Prompt = {
   id: number;
@@ -65,40 +66,70 @@ export default function HomePage() {
     setFilteredPrompts(prompts);
   }, [searchTerm, selectedCategory, allPrompts]);
 
+  // The logic for saving a prompt now lives on the homepage.
+  const handleSave = async (promptId: number) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast.error('You must be logged in to save a prompt.');
+      return;
+    }
+    const { error } = await supabase.from('saved_prompts').insert({
+      user_id: user.id,
+      prompt_id: promptId,
+    });
 
+    if (error) {
+      toast.error('This prompt is already saved.');
+    } else {
+      // Instead of reloading, we just update our state!
+      setSavedPromptIds(prevIds => new Set(prevIds).add(promptId));
+      toast.success('Prompt saved successfully!');
+    }
+  };
   return (
-    <main className="container mx-auto p-8">
-      <h1 className="text-4xl font-bold mb-4 text-center">AI Prompt Database</h1>
-      <p className="text-zinc-400 text-center mb-8">Find the perfect prompt for any task.</p>
-
-      {/* 3. Pass the state and handler functions to the controls */}
-      <FilterControls 
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
-        categories={['All Categories', ...new Set(allPrompts.map(p => p.category))]}
-      />
-
-      {loading ? (
-        <p className="text-center">Loading prompts...</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* 4. We now map over the filteredPrompts state */}
-          {filteredPrompts.map((prompt) => (
-            <PromptCard
-              key={prompt.id}
-              id={prompt.id}
-              title={prompt.title}
-              prompt_text={prompt.prompt_text}
-              category={prompt.category}
-              use_case={prompt.use_case}
-              variant="home"
-              isSaved={savedPromptIds.has(prompt.id)}
-            />
-          ))}
+    <>
+      {/* THEME UPDATE: Hero Section with a medium blue background and shadow */}
+      <div className="bg-[#2E4F64] shadow-2xl">
+        <div className="container mx-auto text-center py-16 md:py-20 px-4">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4">
+            AI Prompt Database
+          </h1>
+          <p className="text-lg md:text-xl text-sky-100 max-w-3xl mx-auto">
+            Unlock the full potential of AI. Browse, save, and use the best prompts for any task.
+          </p>
         </div>
-      )}
-    </main>
+      </div>
+
+      {/* Main Content Area (on the main light blue background) */}
+      <div className="container mx-auto p-4 md:p-8">
+        <FilterControls 
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          categories={['All Categories', ...new Set(allPrompts.map(p => p.category))]}
+        />
+
+        {loading ? (
+          <p className="text-center">Loading prompts...</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredPrompts.map((prompt) => (
+              <PromptCard
+                key={prompt.id}
+                id={prompt.id}
+                title={prompt.title}
+                prompt_text={prompt.prompt_text}
+                category={prompt.category}
+                use_case={prompt.use_case}
+                variant="home"
+                isSaved={savedPromptIds.has(prompt.id)}
+                onSave={handleSave}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </>
   );
 }

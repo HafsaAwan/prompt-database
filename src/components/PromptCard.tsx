@@ -1,6 +1,6 @@
 'use client';
 
-import { supabase } from '@/lib/supabase';
+import toast from 'react-hot-toast';
 
 type PromptCardProps = {
   id: number;
@@ -10,82 +10,82 @@ type PromptCardProps = {
   use_case: string;
   variant: 'home' | 'saved';
   isSaved?: boolean;
+  onSave?: (promptId: number) => void;
+  onRemove?: (promptId: number) => void;
 };
 
-export default function PromptCard({ id, title, prompt_text, category, use_case, variant, isSaved }: PromptCardProps) {
-  
-  const handleSave = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      alert('You must be logged in to save a prompt.');
-      return;
-    }
-    const { error } = await supabase.from('saved_prompts').insert({
-      user_id: user.id,
-      prompt_id: id,
+// A simple, self-contained SVG icon for the "Copy" button
+const CopyIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+  </svg>
+);
+
+export default function PromptCard({ 
+  id, 
+  title, 
+  prompt_text, 
+  category, 
+  use_case, 
+  variant, 
+  isSaved,
+  onSave,
+  onRemove,
+}: PromptCardProps) {
+
+  // This function handles copying the prompt text to the clipboard
+  const handleCopy = () => {
+    navigator.clipboard.writeText(prompt_text).then(() => {
+      toast.success('Prompt copied to clipboard!');
+    }, (err) => {
+      console.error('Could not copy text: ', err);
+      toast.error('Failed to copy prompt.');
     });
-    if (error) {
-      alert('Error saving prompt: ' + error.message);
-    } else {
-      alert('Prompt saved successfully!');
-      window.location.reload();
-    }
-  };
-
-  const handleRemove = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      alert('You must be logged in to remove a prompt.');
-      return;
-    }
-    const { error } = await supabase
-      .from('saved_prompts')
-      .delete()
-      .eq('user_id', user.id)
-      .eq('prompt_id', id);
-
-    if (error) {
-      alert('Error removing prompt: ' + error.message);
-    } else {
-      alert('Prompt removed successfully!');
-      window.location.reload();
-    }
   };
 
   return (
-    <div className="bg-zinc-800 border border-zinc-700 rounded-lg p-6 flex flex-col h-full">
-      <h2 className="text-xl font-bold mb-2 text-white">{title}</h2>
-      <p className="text-zinc-400 mb-4 flex-grow">{prompt_text}</p>
-      <div className="flex justify-between items-center mt-auto pt-4 border-t border-zinc-700">
-        {/* This div now displays both the category and the use_case */}
+    <div className="bg-brand-light-blue border border-cyan-200 rounded-lg p-6 flex flex-col h-full shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+      <div className="flex justify-between items-start mb-2">
+        <h2 className="text-xl font-bold text-brand-dark-blue">{title}</h2>
+        {/* The new Copy button */}
+        <button 
+          onClick={handleCopy}
+          className="p-2 text-brand-medium-blue hover:text-brand-blue hover:bg-white/50 rounded-full transition-colors"
+          aria-label="Copy prompt text"
+        >
+          <CopyIcon />
+        </button>
+      </div>
+      <p className="text-gray-800 mb-4 flex-grow">{prompt_text}</p>
+      <div className="flex justify-between items-center mt-auto pt-4 border-t border-cyan-300">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="bg-zinc-700 text-zinc-300 text-xs font-semibold px-2.5 py-1 rounded">
+          <span className="bg-white/70 text-brand-dark-blue text-xs font-semibold px-2.5 py-1 rounded-full">
             {category}
           </span>
-          <span className="text-sm text-zinc-500">{use_case}</span>
+          <span className="text-sm text-gray-700">{use_case}</span>
         </div>
-
-        {/* This logic for the buttons is unchanged */}
+        
         {variant === 'home' ? (
           isSaved ? (
             <button 
               disabled
-              className="text-sm text-zinc-500 cursor-not-allowed"
+              className="text-sm text-gray-500 cursor-not-allowed font-semibold"
             >
               Saved
             </button>
           ) : (
             <button 
-              onClick={handleSave}
-              className="text-sm text-blue-400 hover:text-blue-300"
+              onClick={() => onSave && onSave(id)}
+              className="text-sm text-brand-medium-blue font-semibold hover:text-brand-blue"
             >
               Save
             </button>
           )
         ) : (
           <button 
-            onClick={handleRemove}
-            className="text-sm text-red-400 hover:text-red-300"
+            onClick={() => onRemove && onRemove(id)}
+            className="text-sm text-red-500 font-semibold hover:text-red-700"
           >
             Remove
           </button>
