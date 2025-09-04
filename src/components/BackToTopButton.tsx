@@ -50,13 +50,13 @@ export default function BackToTopButton() {
         // This uses Tailwind classes to conditionally show or hide the button
         // with a smooth fade-in/fade-out transition.
         className={`
-          bg-brand-blue hover:bg-brand-medium-blue 
-          text-white 
+          bg-accent-primary hover:opacity-90
+          text-background-start 
           p-3 
           rounded-full 
           shadow-lg 
-          transition-opacity duration-300
-          ${isVisible ? 'opacity-100' : 'opacity-0'}
+          transition-all duration-300
+          ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}
         `}
         aria-label="Go to top"
       >

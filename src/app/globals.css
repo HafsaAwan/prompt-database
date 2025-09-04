@@ -1,3 +1,47 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+/* body {
+  
+  @apply bg-gradient-to-br from-background-start via-background-end to-background-start text-text-primary;
+}  */
+
+html, body { height: 100%; }
+
+body {
+  /* This applies your three-stop linear gradient to the entire page and fixes it in place,
+     so it doesn't scroll with the content. */
+  @apply min-h-screen text-text-primary
+         bg-gradient-to-br from-background-start via-background-mid to-background-end
+         bg-fixed;
+}
+
+/* This ::before pseudo-element creates the soft radial glow at the top-right of the viewport.
+   It sits behind your content but on top of the main background gradient. */
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 75vh; /* Covers the top 75% of the screen height */
+  pointer-events: none; /* Allows clicks to pass through it */
+  background: radial-gradient(
+    1000px 500px at 80% 20%, /* Shape and position of the glow */
+    rgba(96,165,250,0.15) 0%,   /* Fades from a subtle blue */
+    transparent 70%             /* To fully transparent */
+  );
+}
+
+/* Remove browser's white autofill background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0px 1000px rgba(17, 24, 39, 0.6) inset !important; /* match your glass bg */
+  -webkit-text-fill-color: #e6eef6 !important; /* match your text color */
+  transition: background-color 5000s ease-in-out 0s;
+  caret-color: #e6eef6; /* makes cursor visible */
+}

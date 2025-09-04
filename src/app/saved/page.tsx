@@ -92,41 +92,45 @@ export default function SavedPromptsPage() {
   }
 
   return (
-    <main className="container mx-auto p-4 md:p-8">
-      {/* THEME UPDATE: Styled the title and added a subtitle */}
-      <div className="text-center py-8 md:py-12">
-        <h2 className="text-4xl md:text-5xl font-extrabold text-brand-dark-blue mb-4">
-          My Favorites
+    // Main container for the page content.
+    <div className="container mx-auto px-8 md:px-16 py-24">
+      
+        <div className="text-center py-16">
+        <h2 className="font-poppins font-bold text-4xl text-text-primary">
+          Your Creative Space
         </h2>
-        <p className="text-md text-slate-600">
-          All your saved prompts in one place.
+        <p className="text-text-secondary mt-2">
+          Manage your saved prompts.
         </p>
       </div>
+        {loading ? (
+          <p className="text-center text-text-secondary">Loading your favorites...</p>
+        ) : prompts.length > 0 ? (
+          // The grid of prompt cards.
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {prompts.map((prompt) => (
+              <PromptCard
+                key={prompt.id}
+                id={prompt.id}
+                title={prompt.title}
+                prompt_text={prompt.prompt_text}
+                category={prompt.category}
+                use_case={prompt.use_case}
+                variant="saved"
+                onRemove={handleRemove}
+              />
+            ))}
+          </div>
+        ) : (
+          // The styled "empty" message for when no prompts are saved.
+          <div className="text-center py-12 bg-glass-bg border border-glass-border rounded-2xl">
+            <p className="text-text-secondary">You haven't saved any prompts yet.</p>
+            <Link href="/" className="mt-4 inline-block bg-accent-primary text-background-start px-6 py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+              Explore Prompts
+            </Link>
+          </div>
+        )}
       
-      {prompts.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {prompts.map((prompt) => (
-            <PromptCard
-              key={prompt.id}
-              id={prompt.id}
-              title={prompt.title}
-              prompt_text={prompt.prompt_text}
-              category={prompt.category}
-              use_case={prompt.use_case}
-              variant="saved"
-              onRemove={handleRemove}
-            />
-          ))}
-        </div>
-      ) : (
-        // THEME UPDATE: Styled the "empty" message
-        <div className="text-center py-12">
-          <p className="text-slate-600">You haven&apos;t saved any prompts yet.</p>
-          <Link href="/" className="mt-4 inline-block bg-brand-blue text-white px-6 py-3 rounded-lg font-semibold hover:bg-brand-medium-blue transition-colors">
-            Explore Prompts
-          </Link>
-        </div>
-      )}
-    </main>
+    </div>
   );
 }

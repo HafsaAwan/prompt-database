@@ -6,6 +6,7 @@ import PromptCard from '@/components/PromptCard';
 import FilterControls from '@/components/FilterControls';
 import toast from 'react-hot-toast';
 
+// Defines the 'shape' or type for a single prompt object.
 type Prompt = {
   id: number;
   title: string;
@@ -15,42 +16,61 @@ type Prompt = {
 };
 
 export default function HomePage() {
+  // State to hold all prompts fetched from the database once.
   const [allPrompts, setAllPrompts] = useState<Prompt[]>([]);
+  // State to hold the prompts that are currently visible after filtering.
   const [filteredPrompts, setFilteredPrompts] = useState<Prompt[]>([]);
+  // State to manage the loading indicator.
   const [loading, setLoading] = useState(true);
+  // State to keep track of which prompts the current user has saved.
   const [savedPromptIds, setSavedPromptIds] = useState<Set<number>>(new Set());
 
-  // 1. State for our filters
+  // State for the search term, which will now be passed to FilterControls.
   const [searchTerm, setSearchTerm] = useState('');
+  // State for the selected category, controlled by the FilterControls component.
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
 
-  // This effect runs only once to fetch all the initial data
+  // This effect runs only once when the page loads to fetch all initial data.
   useEffect(() => {
     const fetchData = async () => {
-      const { data: allPrompts, error: promptsError } = await supabase.from('prompts').select('*');
-      if (promptsError) console.error('Error fetching prompts:', promptsError);
-      else if (allPrompts) {
-        setAllPrompts(allPrompts);
-        setFilteredPrompts(allPrompts); // Initially, show all prompts
+      // Fetch all prompts from the Supabase 'prompts' table.
+      const { data: promptsData, error: promptsError } = await supabase.from('prompts').select('*');
+      if (promptsError) {
+        console.error('Error fetching prompts:', promptsError);
+      } else if (promptsData) {
+        setAllPrompts(promptsData);
+        setFilteredPrompts(promptsData); // Initially, all prompts are visible.
       }
 
+      // Check if a user is logged in.
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { data: saved, error: savedError } = await supabase
+        // If a user exists, fetch their saved prompts.
+        const { data: savedData, error: savedError } = await supabase
           .from('saved_prompts').select('prompt_id').eq('user_id', user.id);
-        if (savedError) console.error('Error fetching saved prompts:', savedError);
-        else if (saved) setSavedPromptIds(new Set(saved.map(item => item.prompt_id)));
+        if (savedError) {
+          console.error('Error fetching saved prompts:', savedError);
+        } else if (savedData) {
+          // Store the IDs of saved prompts in a Set for quick lookups.
+          setSavedPromptIds(new Set(savedData.map(item => item.prompt_id)));
+        }
       }
+      // Set loading to false once all data is fetched.
       setLoading(false);
     };
     fetchData();
   }, []);
 
-  // 2. This effect runs whenever the filters or the original prompts change
+  // This effect re-runs anytime the filters (searchTerm, selectedCategory) or the base prompts change.
   useEffect(() => {
-    let prompts = [...allPrompts];
+    let prompts = [...allPrompts]; // Start with a fresh copy of all prompts.
 
-    // Apply search filter
+    // Apply the category filter based on the FilterControls component.
+    if (selectedCategory !== 'All Categories') {
+      prompts = prompts.filter(p => p.category === selectedCategory);
+    }
+    
+    // Apply the search filter after the category filter.
     if (searchTerm) {
       prompts = prompts.filter(p => 
         p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -58,60 +78,64 @@ export default function HomePage() {
       );
     }
 
-    // Apply category filter
-    if (selectedCategory !== 'All Categories') {
-      prompts = prompts.filter(p => p.category === selectedCategory);
-    }
-
+    // Update the visible prompts.
     setFilteredPrompts(prompts);
   }, [searchTerm, selectedCategory, allPrompts]);
 
-  // The logic for saving a prompt now lives on the homepage.
+  // This function is passed down to each PromptCard to handle the save action.
   const handleSave = async (promptId: number) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       toast.error('You must be logged in to save a prompt.');
       return;
     }
+    // Attempt to insert a new row into the 'saved_prompts' table.
     const { error } = await supabase.from('saved_prompts').insert({
       user_id: user.id,
       prompt_id: promptId,
     });
 
     if (error) {
+      // If there's an error (e.g., duplicate), show an error message.
       toast.error('This prompt is already saved.');
     } else {
-      // Instead of reloading, we just update our state!
+      // If successful, update the local state to reflect the change immediately.
       setSavedPromptIds(prevIds => new Set(prevIds).add(promptId));
       toast.success('Prompt saved successfully!');
     }
   };
+
   return (
     <>
-      {/* THEME UPDATE: Hero Section with a medium blue background and shadow */}
-      <div className="bg-[#2E4F64] shadow-2xl">
-        <div className="container mx-auto text-center py-16 md:py-20 px-4">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4">
-            AI Prompt Database
-          </h1>
-          <p className="text-lg md:text-xl text-sky-100 max-w-3xl mx-auto">
-            Unlock the full potential of AI. Browse, save, and use the best prompts for any task.
-          </p>
-        </div>
-      </div>
+      {/* Hero Section */}
+      <section 
+        id="hero" 
+        className="min-h-screen flex flex-col items-center justify-center text-center px-4"
+      >
+        <h1 className="font-poppins font-bold text-4xl md:text-6xl text-text-primary leading-tight md:leading-snug max-w-4xl">
+          Discover, Save, and Supercharge Your Ideas with AI Prompts
+        </h1>
+        <p className="mt-6 text-lg text-text-secondary max-w-3xl mx-auto">
+          A curated database of powerful prompts to spark creativity and productivity
+        </p>
+      </section>
 
-      {/* Main Content Area (on the main light blue background) */}
-      <div className="container mx-auto p-4 md:p-8">
-        <FilterControls 
+      {/* This container holds all content that appears below the hero */}
+      <div className="container mx-auto px-8 md:px-16 pb-24 ">
+        
+        {/* The newly designed FilterControls component is now rendered here. */}
+        {/* We pass all the necessary state and functions down to it as props. */}
+        <FilterControls
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
+          categories={['All Categories', ...new Set(allPrompts.map(p => p.category))]}
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
-          categories={['All Categories', ...new Set(allPrompts.map(p => p.category))]}
         />
 
+        {/* The prompt grid, which is updated by the filters above. */}
         {loading ? (
-          <p className="text-center">Loading prompts...</p>
+          <p className="text-center text-text-secondary">Loading prompts...</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredPrompts.map((prompt) => (
