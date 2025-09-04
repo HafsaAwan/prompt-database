@@ -18,7 +18,7 @@ export default function AdminPage() {
   const [useCase, setUseCase] = useState(''); // Added useCase state
 
   // State to manage loading and user authentication
-  const [_user, setUser] = useState<User | null>(null);
+  
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -26,14 +26,6 @@ export default function AdminPage() {
   useEffect(() => {
     const checkAdmin = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-
-      // --- DEBUGGING LOGS ---
-      console.log("Logged-in User ID:", user?.id);
-      console.log("Admin ID from .env:", process.env.NEXT_PUBLIC_ADMIN_USER_ID);
-      // --- END DEBUGGING ---
-
-      
-      setUser(user);
 
       // Security Check: If there is no user or the user's ID doesn't match the admin ID,
       // redirect them to the homepage.

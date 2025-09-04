@@ -14,7 +14,7 @@ export default function TermsPage() {
         <p>When you create an account with us, you must provide information that is accurate and complete. You are responsible for safeguarding your password and for any activities or actions under your password.</p>
 
         <h2>3. Content</h2>
-        <p>Our Service allows you to access and save AI-generated prompts ("Content"). You are responsible for how you use this Content. We do not claim ownership of the outputs you generate using the prompts, but we retain ownership of the prompts themselves.</p>
+        <p>Our Service allows you to access and save AI-generated prompts (&quot;Content&quot;). You are responsible for how you use this Content. We do not claim ownership of the outputs you generate using the prompts, but we retain ownership of the prompts themselves.</p>
 
         <h2>4. Termination</h2>
         <p>We may terminate or suspend your account immediately, without prior notice, for any reason whatsoever, including without limitation if you breach the Terms.</p>
