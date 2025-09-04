@@ -124,7 +124,7 @@ export default function SavedPromptsPage() {
         ) : (
           // The styled "empty" message for when no prompts are saved.
           <div className="text-center py-12 bg-glass-bg border border-glass-border rounded-2xl">
-            <p className="text-text-secondary">You haven't saved any prompts yet.</p>
+            <p className="text-text-secondary">You have not saved any prompts yet.</p>
             <Link href="/" className="mt-4 inline-block bg-accent-primary text-background-start px-6 py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity">
               Explore Prompts
             </Link>

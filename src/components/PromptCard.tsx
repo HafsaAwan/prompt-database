@@ -27,7 +27,7 @@ export default function PromptCard({
   title, 
   prompt_text, 
   category, 
-  use_case, 
+  use_case: _useCase, 
   variant, 
   isSaved,
   onSave,

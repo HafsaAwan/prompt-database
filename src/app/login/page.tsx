@@ -65,7 +65,7 @@ export default function LoginPage() {
               Check your email
             </h1>
             <p className="mt-4 text-text-secondary">
-              We've sent a verification link to <span className="font-semibold text-text-primary">{email}</span>. Please click the link to complete your registration.
+              We have sent a verification link to <span className="font-semibold text-text-primary">{email}</span>. Please click the link to complete your registration.
             </p>
           </div>
         ) : (
