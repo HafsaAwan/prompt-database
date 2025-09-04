@@ -5,7 +5,7 @@ export default function TermsPage() {
       <div className="max-w-3xl mx-auto prose prose-invert prose-headings:font-poppins prose-headings:text-text-primary prose-p:text-text-secondary prose-a:text-accent-primary">
         <h1>Terms and Conditions for AI Did This</h1>
         <p><strong>Last Updated:</strong> September 4, 2025</p>
-        <p>Please read these Terms and Conditions ("Terms") carefully before using the AI Did This website and its services (the "Service").</p>
+        <p>Please read these Terms and Conditions (&quot;Terms&quot;) carefully before using the AI Did This website and its services (the &quot;Service&quot;).</p>
 
         <h2>1. Acceptance of Terms</h2>
         <p>By accessing or using the Service, you agree to be bound by these Terms. If you disagree with any part of the terms, you may not access the Service.</p>

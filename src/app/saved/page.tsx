@@ -28,7 +28,10 @@ export default function SavedPromptsPage() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  const fetchSavedPrompts = async () => {
+  
+
+  useEffect(() => {
+    const fetchSavedPrompts = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       router.push('/login');
@@ -62,7 +65,7 @@ export default function SavedPromptsPage() {
     setLoading(false);
   };
 
-  useEffect(() => {
+
     fetchSavedPrompts();
   }, [router]);
 

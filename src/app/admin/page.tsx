@@ -18,7 +18,7 @@ export default function AdminPage() {
   const [useCase, setUseCase] = useState(''); // Added useCase state
 
   // State to manage loading and user authentication
-  const [user, setUser] = useState<User | null>(null);
+  const [_user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
