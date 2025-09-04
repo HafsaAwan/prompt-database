@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
+  const [scrolled, setScrolled] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -23,9 +24,12 @@ export default function Navbar() {
         setUser(session?.user ?? null);
       }
     );
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', onScroll);
 
     return () => {
       authListener?.subscription.unsubscribe();
+      window.removeEventListener('scroll', onScroll);
     };
   }, []);
 
@@ -36,20 +40,34 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="fixed top-0 w-full z-50 border-b bg-background-start/90 backdrop-blur-md border-white/10">
+    <nav
+      className={`fixed top-0 w-full z-50 border-b backdrop-blur-md transition-colors duration-300 ${
+        scrolled
+          ? 'bg-background-start/40 border-white/10'
+          : 'bg-background-start/90 border-white/20'
+      }`}
+    >
       <div className="container mx-auto px-8 md:px-16">
         <div className="flex justify-between items-center h-16">
-          <Link href="/" className="text-2xl font-bold font-poppins text-text-primary">
+          <Link
+            href="/"
+            className="text-2xl font-bold font-poppins text-text-primary"
+          >
             AI Did This
           </Link>
 
           <div className="flex items-center space-x-6">
             {user ? (
               <>
-                <Link href="/saved" className="text-text-secondary hover:text-text-primary text-sm font-medium font-nunito transition-colors">
+                <Link
+                  href="/saved"
+                  className="text-text-secondary hover:text-text-primary text-sm font-medium font-nunito transition-colors"
+                >
                   Favorites
                 </Link>
-                <span className="text-text-secondary/70 text-sm font-nunito hidden sm:block">{user.email}</span>
+                <span className="text-text-secondary/70 text-sm font-nunito hidden sm:block">
+                  {user.email}
+                </span>
                 <button
                   onClick={handleLogout}
                   className="bg-accent-primary hover:opacity-90 text-background-start px-4 py-2 rounded-lg text-sm font-semibold font-nunito transition-opacity"

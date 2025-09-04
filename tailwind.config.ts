@@ -15,9 +15,9 @@ const config: Config = {
         poppins: ['var(--font-poppins)'],
         nunito: ['var(--font-nunito)'],
       },
-      // Your final, refined color palette for the entire application
+      // color palette for the entire application
       colors: {
-        'text-primary':   '#D1DCE8',
+        'text-primary':   '#c2c7ccff',
         'text-secondary': '#9DB4C7',
         'accent-primary': '#60A5FA',
         'accent-secondary': '#8B5CF6',
@@ -38,6 +38,6 @@ const config: Config = {
         },
     },
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/typography'),],
 };
 export default config;
