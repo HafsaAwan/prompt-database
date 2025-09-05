@@ -17,7 +17,7 @@ const config: Config = {
       },
       // color palette for the entire application
       colors: {
-        'text-primary':   '#c2c7ccff',
+        'text-primary':   '#f3f3f8ff',
         'text-secondary': '#9DB4C7',
         'accent-primary': '#60A5FA',
         'accent-secondary': '#8B5CF6',

@@ -8,9 +8,11 @@ export default function Footer() {
     
     {/* Personal brand + message */}
     <div className="max-w-2xl mx-auto space-y-4">
-      <h2 className="text-2xl font-bold font-poppins text-text-primary">
-        AI Did This ✨
-      </h2>
+      <Link href="/" className="inline-block">
+          <h2 className="text-2xl font-bold font-poppins text-text-primary hover:text-accent-primary transition-colors">
+            AI Did This ✨
+          </h2>
+      </Link>
       <p className="text-sm text-text-secondary">
         Powered by coffee ☕ and an unreasonable amount of curiosity 🐱
       </p>

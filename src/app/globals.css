@@ -45,3 +45,22 @@ input:-webkit-autofill:active {
   transition: background-color 5000s ease-in-out 0s;
   caret-color: #e6eef6; /* makes cursor visible */
 }
+
+.nav-link {
+  @apply relative text-text-primary/80 hover:text-text-primary text-base font-medium font-nunito transition-colors;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; /* Adjust this value to change the distance of the line from the text */
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #60A5FA; /* This is your accent-primary color */
+  transition: width 0.3s ease-out;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}

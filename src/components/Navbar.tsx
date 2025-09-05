@@ -57,20 +57,26 @@ export default function Navbar() {
           </Link>
 
           <div className="flex items-center space-x-6">
+            {/* General navigation links */}
+            <Link href="/" className="nav-link hidden sm:block">
+              Home
+            </Link>
+            <Link href="/prompts" className="nav-link hidden sm:block">
+              Prompt Database
+            </Link>
+            {/* Conditional user links */}
             {user ? (
               <>
-                <Link
-                  href="/saved"
-                  className="text-text-secondary hover:text-text-primary text-sm font-medium font-nunito transition-colors"
-                >
+                <Link href="/saved" className="nav-link">
                   Favorites
                 </Link>
-                <span className="text-text-secondary/70 text-sm font-nunito hidden sm:block">
-                  {user.email}
-                </span>
+                <Link href="/profile" className="nav-link">
+                  Profile
+                </Link>
                 <button
                   onClick={handleLogout}
-                  className="bg-accent-primary hover:opacity-90 text-background-start px-4 py-2 rounded-lg text-sm font-semibold font-nunito transition-opacity"
+                  // The "gentle" logout button now uses the same style as our nav links
+                  className="nav-link"
                 >
                   Logout
                 </button>
